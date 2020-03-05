@@ -19,6 +19,9 @@ raw_times:Dict[str, List] = defaultdict(list)
 ignore_sleep:bool = False
 collect_raw = True
 
+def median(name):
+    return statistics.median(raw_times[name])
+
 def reset_stats():
     cumulative_times.clear()
     max_times.clear()
@@ -124,7 +127,7 @@ def print_csv(*names, file=sys.stdout):
         avg = float(cumulative_time)/float(count)
         #if needed, could also do running median: https://stackoverflow.com/questions/10657503/find-running-median-from-a-stream-of-integers
         if collect_raw:
-            median = statistics.median(raw_times[name])
+            median = median(name)
         else:
             median = "NA" #its not available
         csv += f"{name}, {avg}, {max_time}, {min_time}, {count}, {median}\n"
