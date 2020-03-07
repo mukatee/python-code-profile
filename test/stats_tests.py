@@ -173,7 +173,6 @@ class StatsTests(unittest.TestCase):
     async def a_sleeper_2(self):
         await asyncio.sleep(random.randint(1,4))
 
-#the function decorator does not work for async functions for some reason..
     async def a_sleeper(self):
         with profiler.profile("async-inner"):
             await asyncio.sleep(random.randint(1,4))

@@ -110,7 +110,6 @@ def print_run_stats(*names, file=sys.stdout):
               f"    median time:     {median}\n",
               file=file)
 
-#kokeile: print(rivi), print(csv), (rivien keruu listaan tai ei), rivien joinaamiset, stringio
 def print_csv(*names, file=sys.stdout):
     if not collect_raw:
         print("collecting raw times is disabled. not writing per execution point csv files.")
