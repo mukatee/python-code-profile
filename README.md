@@ -1,4 +1,4 @@
-# Python Code Profile
+# Python Code Profiler
 
 For measuring how much time different functions or pieces of code take to execute.
 
@@ -6,7 +6,7 @@ For measuring how much time different functions or pieces of code take to execut
 
 ## PyPi
 
-`pip install code-profile`
+`pip install codeprofile`
 
 For more details, check the [Python Package Index project](https://pypi.org/project/code-profile/).
 
@@ -90,21 +90,21 @@ from codeprofile import profiler
 import asyncio
 
 @profiler.profile_async_func
-async def a_pricer(self):
+async def a_blocker(self):
     block = read_block() # <- assume this function uses asyncio to access network / disk
     await asyncio.sleep(1)
     insert_into_database(block) # <- again, assume this call uses asyncio access to a database
 
 ```
 
-In the above example, `a_pricer` becomes a trace point measuring the function execution time for AsyncIO.
+In the above example, `a_blocker` becomes a trace point measuring the function execution time for AsyncIO.
 
 For code blocks inside AsyncIO methods / functions, the same approach as for other code blocks should work.
 
 ```python
 from codeprofile import profiler
 
-async def hundred_prices():
+async def hundred_blocks():
     for x in range(100):
         with profiler.profile("block read"):
             block = read_block()
@@ -154,7 +154,7 @@ max_block_time = profiler.max_times["block read"]
 min_block_time = profiler.min_times["block read"]
 all_block_times = profiler.raw_times["block read"]
 
-median_price_time = profiler.median("block read")
+median_block_time = profiler.median("block read")
 ```
 
 If you want to reset the statistics while running:
