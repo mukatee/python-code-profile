@@ -11,6 +11,7 @@ import functools
 
 import codeprofile
 
+#TODO: metrics for last N observations
 cumulative_times:Dict[str, int] = defaultdict(int)
 max_times:Dict[str, int] = defaultdict(lambda:-sys.maxsize)
 min_times:Dict[str, int] = defaultdict(lambda:sys.maxsize)
@@ -53,7 +54,7 @@ def profile_func(func):
             startTime = time.process_time()
         else:
             startTime = time.perf_counter()
-        func(*args, **kwargs)
+        result = func(*args, **kwargs)
         if ignore_sleep:
             elapsedTime = time.process_time() - startTime
         else:
@@ -65,6 +66,7 @@ def profile_func(func):
         counts[name] += 1
         if collect_raw:
             raw_times[name].append(elapsedTime)
+        return result
     return newfunc
 
 @contextmanager

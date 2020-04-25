@@ -7,7 +7,7 @@ HERE = pathlib.Path(__file__).parent
 README = (HERE / "README.md").read_text()
 
 setup(name="codeprofile",
-      version="1.0.0",
+      version="1.0.1",
       description="Profiling performance of blocks of code",
       description_content_type="text/markdown",
       long_description=README,
