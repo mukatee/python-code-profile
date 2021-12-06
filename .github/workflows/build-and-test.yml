@@ -9,6 +9,9 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v2
 
+      - name: List files
+        run: ls
+
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
@@ -19,6 +22,7 @@ jobs:
           python -m pip install --upgrade pipenv wheel
 
       - name: Install dependencies
+        working-directory: ./python-code-profile
         run: |
           pipenv install
           pipenv run pytest
