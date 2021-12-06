@@ -72,7 +72,6 @@ class StatsTests(unittest.TestCase):
         mean = df_s1.mean()
         self.assertAlmostEqual(mean, 0.1, delta=0.05)
 
-        cols = df.columns
         df_s2 = df["sleep-two"]
         nans = df_s2.isna().sum()
         self.assertEqual(0, nans)
@@ -86,7 +85,8 @@ class StatsTests(unittest.TestCase):
 
         for x in range(10):
             with profiler.profile("sleep-two"):
-                time.sleep(0.2)
+                sleeptime = 0.1*(1+x%2)
+                time.sleep(sleeptime)
 
         f = io.StringIO()
         profiler.print_run_stats(file=f)
@@ -97,7 +97,7 @@ class StatsTests(unittest.TestCase):
         self.assert_stats(sleep_one, 20, 2.0, 0.10, 0.10, 0.10, 0.10)
 
         sleep_two = splits[1]
-        self.assert_stats(sleep_two, 10, 2.0, 0.20, 0.20, 0.20, 0.20)
+        self.assert_stats(sleep_two, 10, 1.50, 0.10, 0.20, 0.15, 0.15)
 
         f = io.StringIO()
         profiler.print_csv(file=f)
@@ -113,7 +113,6 @@ class StatsTests(unittest.TestCase):
         mean = df_s1.mean()
         self.assertAlmostEqual(mean, 0.1, delta=0.05)
 
-        cols = df.columns
         df_s2 = df["sleep-two"]
         nans = df_s2.isna().sum()
         self.assertEqual(10, nans)
@@ -136,10 +135,10 @@ class StatsTests(unittest.TestCase):
         self.assert_stats(in1, 5, 0.5, 0.1, 0.1, 0.1, 0.1)
 
         in2 = splits[2]
-        self.assert_stats(in2, 5, 0.76, 0.15, 0.15, 0.15, 0.15)
+        self.assert_stats(in2, 5, 0.75, 0.15, 0.15, 0.15, 0.15)
 
         top = splits[3]
-        self.assert_stats_list(top, 1, [1.28, 1.27], [1.28, 1.27])
+        self.assert_stats_list(top, 1, [1.25, 1.26], [1.25, 1.26])
 
 
     def test_method_trace(self):
@@ -156,18 +155,58 @@ class StatsTests(unittest.TestCase):
 
         f = io.StringIO()
         profiler.print_run_stats(file=f)
+
         stats_str = f.getvalue()
         splits = stats_str.split(":\n")
-        print(stats_str)
-
         binder = splits[1]
-        self.assert_stats_list(binder, 1, [0.78], [0.78])
+        self.assert_stats_list(binder, 1, [0.75, 0.76,], [0.75, 0.76,])
 
         inner1 = splits[2]
         self.assert_stats(inner1, 5, 0.5, 0.1, 0.1, 0.1, 0.1)
 
         inner2 = splits[3]
-        self.assert_stats_list(inner2, 5, [0.26, 0.27],[0.05])
+        self.assert_stats_list(inner2, 5, [0.25, 0.26, 0.27],[0.05])
+
+    def test_throw_error(self):
+        for x in range(20):
+            with profiler.profile("sleep-one"):
+                time.sleep(0.1)
+            try:
+                with profiler.profile("throw error"):
+                    time.sleep(0.1)
+                    if (x > 1):
+                        raise Exception("oops")
+            except:
+                pass
+
+        f = io.StringIO()
+        profiler.print_run_stats(file=f)
+        stats_str = f.getvalue()
+        splits = stats_str.split(":\n")
+
+        in1 = splits[1]
+        self.assert_stats(in1, 20, 2.0, 0.1, 0.1, 0.1, 0.1)
+
+        in2 = splits[2]
+        self.assert_stats(in2, 2, 0.2, 0.1, 0.1, 0.1, 0.1)
+
+    def test_count_zero(self):
+        for x in range(2):
+            with profiler.profile("sleep-one"):
+                time.sleep(0.1)
+        profiler.counts["zero_count"] = 0
+        profiler.cumulative_times["zero_count"] = 0
+
+        f = io.StringIO()
+        profiler.print_run_stats(file=f)
+        stats_str = f.getvalue()
+        splits = stats_str.split(":\n")
+
+        in1 = splits[1]
+        self.assert_stats(in1, 2, 0.2, 0.1, 0.1, 0.1, 0.1)
+
+        in2 = splits[2]
+        self.assert_stats(in2, 0, 0, 0, 0, "NA", "NA")
 
     @profiler.profile_async_func
     async def a_sleeper_2(self):
@@ -198,3 +237,4 @@ class StatsTests(unittest.TestCase):
     def test_asyncio_trace_func(self):
         asyncio.run(self.run_async_func())
         profiler.print_run_stats()
+

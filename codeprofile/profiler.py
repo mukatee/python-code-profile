@@ -12,15 +12,15 @@ import functools
 import codeprofile
 
 #TODO: metrics for last N observations
-cumulative_times:Dict[str, int] = defaultdict(int)
-max_times:Dict[str, int] = defaultdict(lambda:-sys.maxsize)
-min_times:Dict[str, int] = defaultdict(lambda:sys.maxsize)
+cumulative_times:Dict[str, float] = defaultdict(int)
+max_times:Dict[str, float] = defaultdict(lambda:-sys.maxsize)
+min_times:Dict[str, float] = defaultdict(lambda:sys.maxsize)
 counts:Dict[str, int] = defaultdict(int)
 raw_times:Dict[str, List] = defaultdict(list)
 ignore_sleep:bool = False
 collect_raw = True
 
-def median(name):
+def calculate_median(name):
     return statistics.median(raw_times[name])
 
 def reset_stats():
@@ -97,9 +97,14 @@ def print_run_stats(*names, file=sys.stdout):
         max_time = max_times[name]
         min_time = min_times[name]
         count = counts[name]
-        avg = float(cumulative_time)/float(count)
+        if count > 0:
+            avg = float(cumulative_time)/float(count)
+        else:
+            max_time = 0
+            min_time = 0
+            avg = "NA"
         #if needed, could also do running median: https://stackoverflow.com/questions/10657503/find-running-median-from-a-stream-of-integers
-        if collect_raw:
+        if collect_raw and count > 0:
             median = statistics.median(raw_times[name])
         else:
             median = "NA" #its not available
@@ -128,7 +133,7 @@ def print_csv(*names, file=sys.stdout):
         avg = float(cumulative_time)/float(count)
         #if needed, could also do running median: https://stackoverflow.com/questions/10657503/find-running-median-from-a-stream-of-integers
         if collect_raw:
-            median = median(name)
+            median = calculate_median(name)
         else:
             median = "NA" #its not available
         csv += f"{name}, {avg}, {max_time}, {min_time}, {count}, {median}\n"
