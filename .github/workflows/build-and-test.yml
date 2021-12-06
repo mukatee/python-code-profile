@@ -22,7 +22,7 @@ jobs:
           python -m pip install --upgrade pipenv wheel
 
       - name: Install dependencies
-        working-directory: ./python-code-profile
+        #working-directory: ./python-code-profile
         run: |
           pipenv install
           pipenv run pytest
