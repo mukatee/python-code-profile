@@ -7,7 +7,7 @@ HERE = pathlib.Path(__file__).parent
 README = (HERE / "README.md").read_text()
 
 setup(name="codeprofile",
-      version="1.0.1",
+      version="1.0.2",
       description="Profiling CPU usage for blocks of code",
       description_content_type="text/markdown",
       long_description=README,
@@ -21,6 +21,7 @@ setup(name="codeprofile",
                    'Programming Language :: Python :: 3.6',
                    'Programming Language :: Python :: 3.7',
                    'Programming Language :: Python :: 3.8',
+                   'Programming Language :: Python :: 3.9',
                    'Development Status :: 5 - Production/Stable',
                    'Topic :: Software Development :: Testing',
                    'Topic :: Software Development',
